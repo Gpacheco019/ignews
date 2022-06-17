@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { version } from '../../package.json'
 
 export const stripe = new Stripe(
-  process.env.SECRET_KEY,
+  process.env.SECRET_KEY_TESTE,
   {
     apiVersion: '2020-08-27',
     appInfo: {
