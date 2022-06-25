@@ -3,8 +3,20 @@ import Head from 'next/head';
 import { GetStaticProps } from 'next';
 import { getPrismicClient } from '../../services/prismic';
 import Prismic from '@prismicio/client'
+import { RichText } from 'prismic-dom';
 
-export default function Posts() {
+type Post = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  updatedAt: string;
+}
+
+interface PostProps {
+  posts: Post[];
+}
+
+export default function Posts({posts}: PostProps) {
   return(
     <>
       <Head>
@@ -13,21 +25,13 @@ export default function Posts() {
 
       <main className={styles.container}>
         <div className={styles.posts}>
-          <a href='#'>
-            <time>12 de março de 2022</time>
-            <strong>Creating a Monorepo with a Lerna & Yarn Workspaces</strong>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem ipsum delectus enim, quia deserunt earum quaerat aperiam. Tenetur natus sit, accusantium consequuntur temporibus sed unde recusandae ipsam possimus? Repellat, vero!</p>
+          {posts.map(post => (
+            <a key={post.slug} href='#'>
+              <time>{post.updatedAt}</time>
+              <strong>{post.title}</strong>
+              <p>{post.excerpt}</p>
           </a>
-          <a href='#'>
-            <time>12 de março de 2022</time>
-            <strong>Creating a Monorepo with a Lerna & Yarn Workspaces</strong>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem ipsum delectus enim, quia deserunt earum quaerat aperiam. Tenetur natus sit, accusantium consequuntur temporibus sed unde recusandae ipsam possimus? Repellat, vero!</p>
-          </a>
-          <a href='#'>
-            <time>12 de março de 2022</time>
-            <strong>Creating a Monorepo with a Lerna & Yarn Workspaces</strong>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem ipsum delectus enim, quia deserunt earum quaerat aperiam. Tenetur natus sit, accusantium consequuntur temporibus sed unde recusandae ipsam possimus? Repellat, vero!</p>
-          </a>
+          ))}
         </div>
       </main>
     </>
@@ -46,7 +50,21 @@ export const getStaticProps: GetStaticProps =  async () => {
 
   console.log(JSON.stringify(response, null, 2));
 
+  const posts = response.results.map(post => {
+    return {
+      slug: post.uid,
+      title: RichText.asText(post.data.title),
+      excerpt: post.data.content.find(content => content.type === 'paragraph')?.text ?? '',
+      updatedAt: new Date(post.last_publication_date).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      })
+    };
+  });
+
+
   return {
-    props: {}
+    props: {posts}
   }
 }
