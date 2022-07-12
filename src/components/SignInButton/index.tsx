@@ -10,7 +10,7 @@ export function SignInButton() {
   // console.log('Session:', session )
 
   return session ? (
-      <button
+    <button
       type="button"
       className={styles.signInButton}
       onClick={() => signOut()}
